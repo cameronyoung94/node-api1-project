@@ -8,7 +8,7 @@ const server= express();
 server.use(express.json());
 
 
-server.post('api/users', async (req, res) => {
+server.post('/api/users', async (req, res) => {
  const user = req.body;
 
  if (!user.name || !user.bio) {
@@ -26,7 +26,7 @@ server.post('api/users', async (req, res) => {
  }
 })
 
-server.get('api/users', async (req, res) => {
+server.get('/api/users', async (req, res) => {
  
  try{
   const users =  await User.findAll()
@@ -36,7 +36,7 @@ server.get('api/users', async (req, res) => {
  }
 })
 
-server.delete('api/users/:id', async (req, res) => {
+server.delete('/api/users/:id', async (req, res) => {
 
  const { id } = req.params
 
@@ -49,6 +49,27 @@ server.delete('api/users/:id', async (req, res) => {
   }
  } catch (err) {
   res.status(500).json({ error: err.message })
+ }
+})
+
+server.put('/api/users/:id', async (req, res) => {
+ const { id } = req.params
+ const changes = req.body
+
+ if (!changes.name || !changes.bio) {
+  res.status(400).json({ message: 'must include name and bio' })
+ } else {
+
+  try {
+   const updatedUser = await User.update(id, changes)
+   if (updatedUser) {
+    res.status(200).json(updatedUser)
+   } else {
+    res.status(404).json({ message: 'unknown id' })
+   }
+  } catch (err) {
+   res.status(500).json({ error: err.message })
+  }
  }
 })
 module.exports = server; // EXPORT YOUR SERVER instead of {}
